@@ -1,0 +1,2 @@
+include CHANGELOG.md README.md LICENSE
+recursive-include samples *
