@@ -1,5 +1,7 @@
 # Veides Agent SDK for Python
 
+[![Build Status](https://travis-ci.org/Veides/veides-agent-sdk-python.svg?branch=master)](https://travis-ci.org/Veides/veides-agent-sdk-python)
+
 This repository contains Python module for Veides Agent SDK. It allows Python developers to easily connect agents and interact with Veides platform. 
 
 **Jump to**:
