@@ -19,13 +19,13 @@ pip install veides-agent-sdk
 ### From source
 
 ```bash
-git clone https://github.com/veides/veides-agent-sdk-python.git
+git clone https://github.com/Veides/veides-agent-sdk-python.git
 python3 -m pip install ./veides-agent-sdk-python
 ```
 
 ## Samples
 
-[Samples README](https://github.com/veides/veides-agent-sdk-python/blob/master/samples)
+[Samples README](https://github.com/Veides/veides-agent-sdk-python/blob/master/samples)
 
 ## Features
 

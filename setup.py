@@ -11,7 +11,7 @@ setup(
     description='Agent Python SDK for Veides',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url='https://github.com/veides/veides-agent-sdk-python',
+    url='https://github.com/Veides/veides-agent-sdk-python',
     author='Veides Team',
     author_email='contact@veides.io',
     license='MIT',
