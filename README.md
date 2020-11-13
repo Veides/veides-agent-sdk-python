@@ -18,7 +18,7 @@ This repository contains Python module for Veides Agent SDK. It allows Python de
 ### Using pip
 
 ```bash
-pip install veides-agent-sdk
+pip3 install veides-agent-sdk
 ```
 
 ### From source

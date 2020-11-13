@@ -60,16 +60,23 @@ class AgentProperties:
 
 
 class ConnectionProperties:
-    def __init__(self, host):
+    def __init__(self, host, capath="/etc/ssl/certs"):
         """
         :param host: Hostname used to connect to Veides
         :type host: str
+        :param capath: Path to certificates directory
+        :type capath: str
         """
         self._host = host
+        self._capath = capath
 
     @property
     def host(self):
         return self._host
+
+    @property
+    def capath(self):
+        return self._capath
 
     @staticmethod
     def from_env():
@@ -81,8 +88,9 @@ class ConnectionProperties:
         :return ConnectionProperties
         """
         host = os.getenv('VEIDES_CLIENT_HOST', None)
+        capath = os.getenv('VEIDES_CLIENT_CAPATH', "/etc/ssl/certs")
 
         if host is None:
             raise ConfigurationException("Missing 'VEIDES_CLIENT_HOST' variable in env")
 
-        return ConnectionProperties(host)
+        return ConnectionProperties(host, capath)

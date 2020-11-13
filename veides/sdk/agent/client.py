@@ -7,7 +7,15 @@ from veides.sdk.agent.properties import AgentProperties, ConnectionProperties
 
 
 class AgentClient(BaseClient):
-    def __init__(self, agent_properties, connection_properties, logger=None, log_level=logging.WARN):
+    def __init__(
+            self,
+            agent_properties,
+            connection_properties,
+            logger=None,
+            mqtt_logger=None,
+            log_level=logging.WARN,
+            mqtt_log_level=logging.ERROR
+    ):
         """
         Extends BaseClient with Veides features
 
@@ -15,9 +23,13 @@ class AgentClient(BaseClient):
         :type agent_properties: AgentProperties
         :param connection_properties: Properties related to Veides connection
         :type connection_properties: ConnectionProperties
-        :param logger: Custom logger
+        :param logger: Custom SDK logger
         :type logger: logging.Logger
-        :param log_level: Logging level
+        :param mqtt_logger: Custom MQTT lib logger
+        :type mqtt_logger: logging.Logger
+        :param log_level: SDK logging level
+        :param mqtt_log_level: MQTT lib logging level
+        :param capath: Path to certificates directory
         """
         BaseClient.__init__(
             self,
@@ -25,9 +37,11 @@ class AgentClient(BaseClient):
             key=agent_properties.key,
             secret_key=agent_properties.secret_key,
             host=connection_properties.host,
-            capath='/etc/ssl/certs',
+            capath=connection_properties.capath,
             logger=logger,
+            mqtt_logger=mqtt_logger,
             log_level=log_level,
+            mqtt_log_level=mqtt_log_level,
         )
 
         self._any_action_handler = None

@@ -4,6 +4,8 @@ import ssl
 import logging
 import threading
 import paho.mqtt.client as paho
+from paho.mqtt import __version__ as paho_version
+
 
 from veides.sdk.exceptions import ConnectionException
 
@@ -17,7 +19,9 @@ class BaseClient(object):
         host,
         capath=None,
         log_level=logging.WARN,
+        mqtt_log_level=logging.ERROR,
         logger=None,
+        mqtt_logger=None
     ):
         """
         Underlying client implementation featuring Veides communication over MQTT
@@ -25,10 +29,14 @@ class BaseClient(object):
         :param client_id: Agent's client id. It may be obtained in console.
         :param key: Agent's key generated on adding agent. When lost new one can be obtained in console.
         :param secret_key: Agent's secret key generated on adding agent. When lost new one can be obtained in console.
-        :param host:
-        :param capath:
-        :param log_level:
-        :param logger:
+        :param host: Host to connect to
+        :type host: str
+        :param capath: Certificates directory
+        :type capath: str
+        :param log_level: SDK log level
+        :param mqtt_log_level: MQTT lib log level
+        :param logger: SDK custom logger
+        :param mqtt_logger: MQTT lib custom logger
         """
         self.client_id = client_id
         self.key = key
@@ -40,21 +48,17 @@ class BaseClient(object):
         self._subscribed_topics = {}
 
         if logger is None:
-            self.logger = logging.getLogger(self.__module__ + "." + self.__class__.__name__)
-            self.logger.handlers = []
-            self.logger.setLevel(log_level)
-
-            handler = logging.StreamHandler()
-            handler.setFormatter(
-                logging.Formatter("%(asctime)s %(name)s [%(levelname)s] %(message)s")
-            )
-
-            self.logger.addHandler(handler)
+            self.logger = self._build_logger(self.__module__ + "." + self.__class__.__name__, log_level)
         else:
             self.logger = logger
 
+        if mqtt_logger is None:
+            self.mqtt_logger = self._build_logger("Paho/{}".format(paho_version), mqtt_log_level)
+        else:
+            self.mqtt_logger = mqtt_logger
+
         self.client = paho.Client(self.client_id, transport="tcp", clean_session=True)
-        
+
         self.client.username_pw_set(self.key, self.secret_key)
 
         try:
@@ -96,6 +100,20 @@ class BaseClient(object):
     def is_connected(self):
         return self.connected.isSet()
 
+    def _build_logger(self, name, log_level):
+        logger = logging.getLogger(name)
+        logger.handlers = []
+        logger.setLevel(log_level)
+
+        handler = logging.StreamHandler()
+        handler.setFormatter(
+            logging.Formatter("%(asctime)s %(name)s [%(levelname)s] %(message)s")
+        )
+
+        logger.addHandler(handler)
+
+        return logger
+
     def _publish(self, topic, data, qos=1):
         """
         :param topic: Topic to publish message to
@@ -134,7 +152,7 @@ class BaseClient(object):
         :type string: str
         :return void
         """
-        self.logger.log(paho.LOGGING_LEVEL[level], string)
+        self.mqtt_logger.log(paho.LOGGING_LEVEL[level], string)
 
     def _on_connect(self, client, userdata, flags, rc):
         """
