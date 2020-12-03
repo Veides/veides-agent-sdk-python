@@ -2,7 +2,7 @@
 
 ## agent basic
 
-Sample shows basic usage of Veides Agent SDK. Please note that commented parts may require agent to be configured for particular case to work.
+Sample shows basic usage of Veides Agent SDK. Please not that it's aligned with [Build an Agent Quickstart](https://docs.veides.io/quickstarts/buildanagent), which you can follow to fully use this sample. 
 
 To run this sample type the following:
 

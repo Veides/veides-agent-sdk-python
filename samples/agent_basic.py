@@ -25,41 +25,61 @@ if __name__ == "__main__":
         ),
         # If you want to provide agent properties in environment, use below line instead
         # agent_properties=AgentProperties.from_env()
-        log_level=logging.INFO  # logging.WARN by default
+        # Set DEBUG level to see received and sent data. Level is logging.WARN by default
+        log_level=logging.DEBUG
     )
 
     client.connect()
 
-    # set a handler for any action received
+    # Set a handler for particular action
+    def on_set_low_speed_action(entities):
+        client.send_trail('speed_level', 'low')
+        client.send_action_completed('set_low_speed')
+
+    client.on_action('set_low_speed', on_set_low_speed_action)
+
+    # You can also set a handler for any action received.
+    # It will execute when there's no callback set for the particular action
     # def any_action_handler(name, entities):
     #     client.send_action_completed(name)
 
     # client.on_any_action(any_action_handler)
 
-    # set a handler for particular action
-    # def slow_down_handler(entities):
-    #     client.send_action_completed('slow_down')
+    # Send initial facts
+    client.send_facts({
+        'battery_level': 'full',
+        'charging': 'no',
+    })
 
-    # client.on_action('slow_down', slow_down_handler)
+    # Send a trail
+    client.send_trail('speed_level', 'normal')
 
-    # send initial facts
-    # client.send_facts({
-    #     'battery_level': 'full'
-    # })
+    # Send ready event
+    client.send_event('ready_to_rock')
 
-    # send ready event
-    # client.send_event('ready_to_rock')
+    uptime = 0
+    finish = False
 
-    up_time = 0
-
-    try:
-        while True:
-            # send example trail (to see the value you need to setup dashboard first)
-            # client.send_trail('up_time', up_time)
-
+    while not finish:
+        try:
             sleep(1)
-            up_time += 1
-    except KeyboardInterrupt:
-        pass
+            uptime += 1
+
+            # Send trail
+            client.send_trail('uptime', uptime)
+
+            if uptime == 10:
+                # Send facts update
+                client.send_facts({
+                    'battery_level': 'low',
+                })
+        except KeyboardInterrupt:
+            finish = True
+            pass
+
+    # Send facts update
+    client.send_facts({
+        'battery_level': 'unknown',
+    })
 
     client.disconnect()
