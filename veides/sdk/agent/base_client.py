@@ -7,7 +7,7 @@ import paho.mqtt.client as paho
 from paho.mqtt import __version__ as paho_version
 
 
-from veides.sdk.exceptions import ConnectionException
+from veides.sdk.agent.exceptions import ConnectionException
 
 
 class BaseClient(object):

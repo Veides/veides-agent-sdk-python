@@ -1,5 +1,1 @@
-__version__ = '0.2.0'
-
-from veides.sdk.exceptions import ConnectionException, ConfigurationException
-
-import veides.sdk.agent
+__path__ = __import__("pkgutil").extend_path(__path__, __name__)

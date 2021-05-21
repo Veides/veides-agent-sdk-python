@@ -46,11 +46,16 @@ class AgentClient(BaseClient):
 
         self._any_action_handler = None
         self._action_handlers = {}
+        self._any_method_handler = None
+        self._method_handlers = {}
 
         action_received_topic = 'agent/{}/action_received'.format(agent_properties.client_id)
+        method_called_topic = 'agent/{}/method/+'.format(agent_properties.client_id)
 
         self.client.message_callback_add(action_received_topic, self._on_action)
+        self.client.message_callback_add(method_called_topic, self._on_method)
         self._subscribed_topics[action_received_topic] = 1
+        self._subscribed_topics[method_called_topic] = 1
 
     def on_any_action(self, func):
         """
@@ -86,6 +91,65 @@ class AgentClient(BaseClient):
             raise TypeError('callback should be callable')
 
         self._action_handlers[name] = func
+
+    def on_any_method(self, func):
+        """
+        Register a callback for any method. It will execute when there's no
+        callback set for the particular method (see on_method())
+
+        :param func: Callback for methods
+        :type func: callable
+        :return void
+        """
+        if not callable(func):
+            raise TypeError('callback should be callable')
+
+        self._any_method_handler = func
+
+    def on_method(self, name, func):
+        """
+        Register a callback for the particular method
+
+        :param name: Expected method name
+        :type name: str
+        :param func: Callback for method
+        :type func: callable
+        :return void
+        """
+        if not isinstance(name, str):
+            raise TypeError('method name should be a string')
+
+        if len(name) == 0:
+            raise ValueError('method name should be at least 1 length')
+
+        if not callable(func):
+            raise TypeError('callback should be callable')
+
+        self._method_handlers[name] = func
+
+    def send_method_response(self, name, payload):
+        """
+        Send the response to invoked method
+
+        :param name: Method name
+        :type name: str
+        :param payload: A dictionary containing response to the method
+        :type payload: dict
+        :return bool
+        """
+        if not isinstance(name, str):
+            raise TypeError('method name should be a string')
+
+        if len(name) == 0:
+            raise ValueError('method name should be at least 1 length')
+
+        if not isinstance(payload, dict):
+            raise TypeError('payload should be a dict')
+
+        return self._publish(
+            'agent/{}/method_response/{}'.format(self.client_id, name),
+            payload
+        )
 
     def send_action_completed(self, name):
         """
@@ -199,7 +263,31 @@ class AgentClient(BaseClient):
 
         func = self._action_handlers.get(payload.get('name'), None)
 
+        if func is None and callable(self._any_action_handler):
+            func = self._any_action_handler
+
         if func is not None:
-            func(payload.get('entities', []))
-        elif callable(self._any_action_handler):
-            self._any_action_handler(payload.get('name'), payload.get('entities', []))
+            func(payload.get('name'), payload.get('entities', []))
+
+    def _on_method(self, client, userdata, msg):
+        """
+        Dispatches received action to appropriate handler
+
+        :param client: Paho client instance
+        :type client: paho.Client
+        :param userdata: User-defined data
+        :type: userdata: object
+        :param msg: Received Paho message
+        :type msg: paho.MQTTMessage
+        :return void
+        """
+        method_name = msg.topic.split('/')[-1]
+        payload = json.loads(msg.payload)
+
+        func = self._method_handlers.get(method_name, None)
+
+        if func is None and callable(self._any_method_handler):
+            func = self._any_method_handler
+
+        if func is not None:
+            func(method_name, payload)

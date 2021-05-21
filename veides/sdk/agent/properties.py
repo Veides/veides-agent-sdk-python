@@ -1,5 +1,5 @@
 import os
-from veides.sdk.exceptions import ConfigurationException
+from veides.sdk.agent.exceptions import ConfigurationException
 
 
 class AgentProperties:

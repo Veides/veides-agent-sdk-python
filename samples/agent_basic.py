@@ -32,9 +32,9 @@ if __name__ == "__main__":
     client.connect()
 
     # Set a handler for particular action
-    def on_set_low_speed_action(entities):
+    def on_set_low_speed_action(name, entities):
         client.send_trail('speed_level', 'low')
-        client.send_action_completed('set_low_speed')
+        client.send_action_completed(name)
 
     client.on_action('set_low_speed', on_set_low_speed_action)
 
@@ -44,6 +44,19 @@ if __name__ == "__main__":
     #     client.send_action_completed(name)
 
     # client.on_any_action(any_action_handler)
+
+    # Set a handler for particular method
+    def on_shutdown_method_invoked(name, payload):
+        client.send_method_response(name, {})
+
+    client.on_method('shutdown', on_shutdown_method_invoked)
+
+    # You can also set a handler for any method invoked.
+    # It will execute when there's no callback set for the particular method
+    # def on_any_method_invoked(name, payload):
+    #     client.send_method_response(name, {})
+
+    # client.on_any_method(on_any_method_invoked)
 
     # Send initial facts
     client.send_facts({
