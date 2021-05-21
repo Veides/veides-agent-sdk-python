@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.4.0] - 2021-05-21
+
+### Changed
+
+* Agent methods aligned
+
 ## [0.3.0] - 2021-05-21
 
 ### Added

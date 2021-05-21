@@ -127,14 +127,16 @@ class AgentClient(BaseClient):
 
         self._method_handlers[name] = func
 
-    def send_method_response(self, name, payload):
+    def send_method_response(self, name, payload, code=200):
         """
         Send the response to invoked method
 
         :param name: Method name
         :type name: str
         :param payload: A dictionary containing response to the method
-        :type payload: dict
+        :type payload: dict|list|str|int|float|bool
+        :param code: HTTP response code
+        :type code: int
         :return bool
         """
         if not isinstance(name, str):
@@ -143,12 +145,18 @@ class AgentClient(BaseClient):
         if len(name) == 0:
             raise ValueError('method name should be at least 1 length')
 
-        if not isinstance(payload, dict):
-            raise TypeError('payload should be a dict')
+        if payload is None:
+            raise TypeError('body is required')
+
+        if not isinstance(code, int):
+            raise TypeError('code should be an integer')
 
         return self._publish(
             'agent/{}/method_response/{}'.format(self.client_id, name),
-            payload
+            {
+                "payload": payload,
+                "code": code
+            }
         )
 
     def send_action_completed(self, name):

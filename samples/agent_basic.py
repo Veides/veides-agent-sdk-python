@@ -47,14 +47,14 @@ if __name__ == "__main__":
 
     # Set a handler for particular method
     def on_shutdown_method_invoked(name, payload):
-        client.send_method_response(name, {})
+        client.send_method_response(name, {"received_payload": payload})
 
     client.on_method('shutdown', on_shutdown_method_invoked)
 
     # You can also set a handler for any method invoked.
     # It will execute when there's no callback set for the particular method
     # def on_any_method_invoked(name, payload):
-    #     client.send_method_response(name, {})
+    #     client.send_method_response(name, {"received_payload": payload})
 
     # client.on_any_method(on_any_method_invoked)
 

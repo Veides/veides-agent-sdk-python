@@ -93,20 +93,20 @@ def test_should_send_method_response(connected_client):
         'foo': 'bar'
     }
 
-    connected_client.send_method_response(method_name, payload)
+    connected_client.send_method_response(method_name, payload, 201)
 
     connected_client.client.publish.assert_called_once_with(
         'agent/{}/method_response/{}'.format(connected_client.client_id, method_name),
-        json.dumps(payload),
+        json.dumps({
+            "payload": payload,
+            "code": 201
+        }),
         qos=1,
         retain=False
     )
 
 
 @pytest.mark.parametrize("payload", [
-    [],
-    'string',
-    123,
     None,
 ])
 def test_should_raise_error_if_given_invalid_method_response_payload(payload, connected_client):
